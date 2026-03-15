@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:15
+    container_name: postgres_seche
+    restart: always
+    environment:
+      POSTGRES_USER: cobrasw3
+      POSTGRES_PASSWORD: my_password
+      POSTGRES_DB: calories_tracker
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - seche-network
+
+  grafana:
+    image: grafana/grafana-oss
+    container_name: grafana_seche
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - seche-network
+
+networks:
+  seche-network:
+
+volumes:
+  postgres_data:
+  grafana_data:

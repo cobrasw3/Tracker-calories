@@ -1,5 +1,6 @@
 .env
-.venv/
 *.json
+.venv/
 __pycache__/
-
+postgres_data/
+grafana_data/

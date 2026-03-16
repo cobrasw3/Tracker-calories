@@ -1,32 +1,38 @@
+version: '3.8'
+
 services:
   db:
     image: postgres:15
     container_name: postgres_seche
     restart: always
     environment:
+      POSTGRES_DB: calories_tracker
       POSTGRES_USER: cobrasw3
       POSTGRES_PASSWORD: my_password
-      POSTGRES_DB: calories_tracker
     ports:
-      - "5432:5432"
+      - "5432:5432" # Pour y accéder depuis le PC
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    networks:
-      - seche-network
 
   grafana:
-    image: grafana/grafana-oss
+    image: grafana/grafana
     container_name: grafana_seche
     restart: always
     ports:
       - "3000:3000"
     volumes:
       - grafana_data:/var/lib/grafana
-    networks:
-      - seche-network
+    depends_on:
+      - db
 
-networks:
-  seche-network:
+  bot:
+    build: .
+    container_name: telegram_bot_seche
+    restart: always
+    depends_on:
+      - db
+    env_file:
+      - .env
 
 volumes:
   postgres_data:

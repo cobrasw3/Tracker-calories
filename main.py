@@ -16,7 +16,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 def save_data(type_donnee, valeur):
     # 1. Connexion à la database
     conn = psycopg2.connect(
-        host="localhost",
+        host="db",
         database="calories_tracker",
         user="cobrasw3",
         password="my_password"
@@ -35,7 +35,7 @@ def insert_data(table, valeur):
     try:
         # On se connecte
         conn = psycopg2.connect(
-            host="localhost",
+            host="db",
             database="calories_tracker",
             user="cobrasw3",
             password="my_password"
@@ -59,7 +59,7 @@ def insert_data(table, valeur):
 # Chercher les calories cumulées du jour
 def get_calories_today():
     try:
-        conn = psycopg2.connect(host="localhost", database="calories_tracker", user="cobrasw3", password="my_password")
+        conn = psycopg2.connect(host="db", database="calories_tracker", user="cobrasw3", password="my_password")
         cur = conn.cursor()
         cur.execute("SELECT SUM(valeur) FROM suivi_calories WHERE date_enregistrement::date = CURRENT_DATE")
         total = cur.fetchone()[0]
@@ -73,7 +73,7 @@ def get_calories_today():
 # Chercher le dernier poids enregistré aujourd'hui
 def get_last_poids_today():
     try:
-        conn = psycopg2.connect(host="localhost", database="calories_tracker", user="cobrasw3", password="my_password")
+        conn = psycopg2.connect(host="db", database="calories_tracker", user="cobrasw3", password="my_password")
         cur = conn.cursor()
         cur.execute("SELECT valeur FROM suivi_poids WHERE date_enregistrement::date = CURRENT_DATE ORDER BY id DESC LIMIT 1")
         res = cur.fetchone()
@@ -87,7 +87,7 @@ def get_last_poids_today():
 # Chercher les pas cumulés du jour
 def get_pas_today():
     try:
-        conn = psycopg2.connect(host="localhost", database="calories_tracker", user="cobrasw3", password="my_password")
+        conn = psycopg2.connect(host="db", database="calories_tracker", user="cobrasw3", password="my_password")
         cur = conn.cursor()
         cur.execute("SELECT SUM(valeur) FROM suivi_pas WHERE date_enregistrement::date = CURRENT_DATE")
         total = cur.fetchone()[0]
@@ -133,7 +133,7 @@ async def bilan(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 def get_current_objectif(type_obj):
     try:
-        conn = psycopg2.connect(host="localhost", database="calories_tracker", user="cobrasw3", password="my_password")
+        conn = psycopg2.connect(host="db", database="calories_tracker", user="cobrasw3", password="my_password")
         cur = conn.cursor()
         cur.execute("SELECT valeur FROM objectifs WHERE type_objectif = %s", (type_obj,))
         res = cur.fetchone()
@@ -147,7 +147,7 @@ def get_current_objectif(type_obj):
 def delete_by_date(table, date_str):
     try:
         conn = psycopg2.connect(
-            host="localhost",
+            host="db",
             database="calories_tracker",
             user="cobrasw3",
             password="my_password"
@@ -174,7 +174,7 @@ def delete_data(table):
     try:
         # On se connecte
         conn = psycopg2.connect(
-            host="localhost",
+            host="db",
             database="calories_tracker",
             user="cobrasw3",
             password="my_password"
@@ -200,7 +200,7 @@ def delete_data(table):
 def get_history(table, jours=7):
     try:
         conn = psycopg2.connect(
-            host="localhost",
+            host="db",
             database="calories_tracker",
             user="cobrasw3",
             password="my_password"
@@ -237,7 +237,7 @@ async def info(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # --- CAS PARTICULIER : OBJECTIFS ---
     if categorie == "objectifs":
         try:
-            conn = psycopg2.connect(host="localhost", database="calories_tracker", user="cobrasw3", password="my_password")
+            conn = psycopg2.connect(host="db", database="calories_tracker", user="cobrasw3", password="my_password")
             cur = conn.cursor()
             cur.execute("SELECT type_objectif, valeur FROM objectifs")
             rows = cur.fetchall()
@@ -382,7 +382,7 @@ async def set_objectif(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     try:
-        conn = psycopg2.connect(host="localhost", database="calories_tracker", user="cobrasw3", password="my_password")
+        conn = psycopg2.connect(host="db", database="calories_tracker", user="cobrasw3", password="my_password")
         cur = conn.cursor()
         cur.execute("UPDATE objectifs SET valeur = %s WHERE type_objectif = %s", (valeur, type_obj))
         conn.commit()

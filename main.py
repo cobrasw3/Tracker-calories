@@ -195,6 +195,29 @@ def delete_data(table):
     except Exception as e:
         print(f"Erreur suppression : {e}")
         return False
+
+# Fonction pour récupérer les 10 dernières entrées réelles
+def get_formatted_history(table):
+    try:
+        conn = psycopg2.connect(
+            host="db",
+            database="calories_tracker",
+            user="cobrasw3",
+            password="my_password"
+        )
+        cur = conn.cursor()
+        
+        # On récupère les 10 dernières entrées par ID décroissant
+        sql = f"SELECT date_enregistrement::date, valeur FROM {table} ORDER BY id DESC LIMIT 10"
+        
+        cur.execute(sql)
+        lignes = cur.fetchall()
+        cur.close()
+        conn.close()
+        return lignes
+    except Exception as e:
+        print(f"Erreur historique détaillé : {e}")
+        return None
     
 # Fonction pour récupérer l'historique d'un paramètre sur les 7 derniers jours
 def get_history(table, jours=7):
@@ -226,6 +249,38 @@ def get_history(table, jours=7):
     except Exception as e:
         print(f"Erreur historique : {e}")
         return None
+    
+async def historique(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not context.args:
+        await update.message.reply_text("Usage : /historique [calories/pas/poids]")
+        return
+
+    categorie = context.args[0].lower()
+    table_map = {
+        "calories": ("suivi_calories", "kcal", "🔥"),
+        "pas": ("suivi_pas", "pas", "👣"),
+        "poids": ("suivi_poids", "kg", "📉")
+    }
+
+    if categorie in table_map:
+        table, unite, emoji = table_map[categorie]
+        donnees = get_formatted_history(table)
+        
+        if not donnees:
+            await update.message.reply_text(f"Aucune donnée trouvée dans {categorie}.")
+            return
+
+        message = f"{emoji} **10 dernières saisies : {categorie.capitalize()}**\n"
+        message += "----------------------------------\n"
+
+        for date, valeur in donnees:
+            # Formatage : entier pour pas/cal, float pour poids
+            val_str = int(valeur) if categorie != "poids" else round(valeur, 1)
+            message += f"📅 {date.strftime('%d/%m')} : **{val_str}** {unite}\n"
+        
+        await update.message.reply_text(message, parse_mode='Markdown')
+    else:
+        await update.message.reply_text("Catégorie inconnue. Utilise : calories, pas ou poids.")
     
 async def info(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.args:
@@ -406,8 +461,9 @@ async def options(update: Update, context: ContextTypes.DEFAULT_TYPE):
         
         "📊 **Consultation :**\n"
         "📱 `/bilan` : Résumé complet de ta journée\n"
-        "📜 `/info [type]` : Historique simple (7j)\n"
-        "   _(ex: /info calories, /info pas, /info poids)_\n\n"
+        "📜 `/info [type]` : Historique par jour (7j)\n"
+        "🕒 `/historique [type]` : Liste des 10 dernières saisies\n"
+        "   _(ex: /historique calories, /historique pas, /historique poids)_\n\n"
         
         "🧹 **Correction & Nettoyage :**\n"
         "🔙 `/oups [type]` : Supprime la toute dernière saisie\n"
@@ -434,6 +490,7 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('clean', clean))
     app.add_handler(CommandHandler('info', info))
     app.add_handler(CommandHandler('objectif', set_objectif))
+    app.add_handler(CommandHandler('historique', historique))
 
     # Lancement du bot
     print("Lancement du bot en cours...")

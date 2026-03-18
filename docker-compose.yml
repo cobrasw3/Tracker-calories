@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:15
@@ -10,7 +8,7 @@ services:
       POSTGRES_USER: cobrasw3
       POSTGRES_PASSWORD: my_password
     ports:
-      - "5432:5432" # Pour y accéder depuis le PC
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 

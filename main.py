@@ -7,7 +7,7 @@ from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 # Chargement des variables du fichier .env
 load_dotenv()
 TOKEN = os.getenv("TELEGRAM_TOKEN")
-DB_PASSWORD = os.getenv(DB_PASSWORD)
+DB_PASSWORD = os.getenv("DB_PASSWORD")
 
 # Première phrase du bot au reveil
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):

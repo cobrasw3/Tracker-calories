@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_DB: calories_tracker
       POSTGRES_USER: cobrasw3
-      POSTGRES_PASSWORD: my_password
+      POSTGRES_PASSWORD: ${DB_PASSWORD} 
     ports:
       - "127.0.0.1:5432:5432"
     volumes:
@@ -16,8 +16,9 @@ services:
     image: grafana/grafana
     container_name: grafana_seche
     restart: always
-    ports:
-      - "3000:3000"
+
+    expose:
+      - "3000"
     volumes:
       - grafana_data:/var/lib/grafana
     depends_on:
@@ -31,6 +32,18 @@ services:
       - db
     env_file:
       - .env
+
+  nginx-proxy:
+    image: 'jc21/nginx-proxy-manager:latest'
+    container_name: nginx_proxy_seche
+    restart: always
+    ports:
+      - '80:80'   
+      - '443:443'
+      - '81:81' 
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
 
 volumes:
   postgres_data:
